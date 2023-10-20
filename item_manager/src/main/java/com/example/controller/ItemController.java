@@ -29,7 +29,8 @@ public class ItemController {
  // 商品一覧の表示
     @GetMapping
     public String index(Model model) {
-        List<Item> items = this.itemService.findAll();
+        // DELETED_ATがnullのデータのみを検索します
+        List<Item> items = this.itemService.findByDeletedAtIsNull();
         // 画面で利用する変数としてitemsをセットします
         model.addAttribute("items", items);
         // templates\item\index.htmlを表示します
