@@ -15,10 +15,12 @@ import com.example.repository.ItemRepository;
 public class ItemService {
 
     private final ItemRepository itemRepository;
+    private final CategoryService categoryService;
 
     @Autowired
-    public ItemService(ItemRepository itemRepository) {
+    public ItemService(ItemRepository itemRepository, CategoryService categoryService) {
         this.itemRepository = itemRepository;
+        this.categoryService = categoryService;
     }
     
 public List<Item> findAll() {
@@ -27,13 +29,12 @@ public List<Item> findAll() {
 
 //データ保存用のメソッドです
 public Item save(ItemForm itemForm) {
- // Entityクラスのインスタンスを生成します
- Item item = new Item();
- // フィールドのセットを行います
- item.setName(itemForm.getName());
- item.setPrice(itemForm.getPrice());
- // repository.saveメソッドを利用してデータの保存を行います
- return this.itemRepository.save(item);
+    Item item = new Item();
+    item.setName(itemForm.getName());
+    item.setPrice(itemForm.getPrice());
+    // カテゴリIDをセットする
+    item.setCategoryId(itemForm.getCategoryId());
+    return this.itemRepository.save(item);
 }
 
 
@@ -46,13 +47,12 @@ public Item findById(Integer id) {
 
 //データ更新用のメソッドです
 public Item update(Integer id, ItemForm itemForm) {
- // データ１件分のEntityクラスを取得します
- Item item = this.findById(id);
- // Formクラスのフィールドをセットします
- item.setName(itemForm.getName());
- item.setPrice(itemForm.getPrice());
- // repository.saveメソッドを利用してデータの保存を行います
- return this.itemRepository.save(item);
+    Item item = this.findById(id);
+    item.setName(itemForm.getName());
+    item.setPrice(itemForm.getPrice());
+    // カテゴリIDをセットする
+    item.setCategoryId(itemForm.getCategoryId());
+    return this.itemRepository.save(item);
 }
 
 //データ削除用のメソッドです

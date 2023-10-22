@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.example.entity.Category;
 import com.example.entity.Item;
 import com.example.form.ItemForm;
+import com.example.service.CategoryService;
 import com.example.service.ItemService;
 
 @Controller
@@ -20,11 +22,6 @@ import com.example.service.ItemService;
 public class ItemController {
 
     private final ItemService itemService;
-
-    @Autowired
-    public ItemController(ItemService itemService) {
-        this.itemService = itemService;
-    }
 
  // 商品一覧の表示
     @GetMapping
@@ -37,10 +34,23 @@ public class ItemController {
         return "item/index";
     }
 
+ // CategoryServiceをコンストラクタインジェクションする
+    private final CategoryService categoryService;
+
+    @Autowired
+    public ItemController(ItemService itemService, CategoryService categoryService) {
+        this.itemService = itemService;
+        this.categoryService = categoryService; // 追加
+    }
+
     // 商品登録ページ表示用
     @GetMapping("toroku")
-    public String torokuPage(@ModelAttribute("itemForm") ItemForm itemForm) {
-        // templates\item\torokuPage.htmlを表示します
+    public String torokuPage(@ModelAttribute("itemForm") ItemForm itemForm, Model model) {
+        // Categoryモデルから一覧を取得する
+        List<Category> categories = this.categoryService.findAll();
+
+        // viewにカテゴリを渡す
+        model.addAttribute("categories", categories);
         return "item/torokuPage";
     }
 
@@ -58,14 +68,21 @@ public class ItemController {
     @GetMapping("henshu/{id}")
     public String henshuPage(@PathVariable("id") Integer id, Model model
                              , @ModelAttribute("itemForm") ItemForm itemForm) {
-        // Entityクラスのインスタンスをidより検索し取得します
         Item item = this.itemService.findById(id);
-        // フィールドのセットを行います
         itemForm.setName(item.getName());
         itemForm.setPrice(item.getPrice());
-        // idをセットします
+
+        // カテゴリIDをformにセットする
+        itemForm.setCategoryId(item.getCategoryId());
+
+        // Categoryモデルから一覧を取得する
+        List<Category> categories = this.categoryService.findAll();
+
         model.addAttribute("id", id);
-        // templates/item/henshuPageを表示します
+
+        // viewにカテゴリを渡す
+        model.addAttribute("categories", categories);
+
         return "item/henshuPage";
     }
 
